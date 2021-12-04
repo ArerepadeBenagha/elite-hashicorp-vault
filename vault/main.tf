@@ -302,7 +302,7 @@ resource "aws_acm_certificate_validation" "vaultcert" {
 ##------- ALB Alias record ----------##
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "registration-app.elietesolutionsit.de"
+  name    = "elite-vaultdev.elietesolutionsit.de"
   type    = "A"
 
   alias {
