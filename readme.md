@@ -1,0 +1,1 @@
+https://learn.hashicorp.com/tutorials/vault/getting-started-ui?in=vault/getting-started
