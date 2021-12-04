@@ -149,7 +149,7 @@ resource "aws_lb" "vault" {
 ###------- ALB Health Check -------###
 resource "aws_lb_target_group" "vaultapp_tglb" {
   name     = join("-", [local.application.app_name, "vaultapptglb"])
-  port     = 80
+  port     = 8200
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
 
