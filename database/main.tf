@@ -132,7 +132,7 @@ resource "aws_db_instance" "mysql" {
   instance_class          = "db.t3.micro" # use micro if you want to use the free tier
   identifier              = "mysql"
   name                    = "elite-db"
-  username                = eliteadmin       # username
+  username                = "eliteadmin"       # username
   password                = var.rds_pass # password
   db_subnet_group_name    = aws_db_subnet_group.mysql-subnet.name
   parameter_group_name    = aws_db_parameter_group.mysql-parameters.name
