@@ -19,7 +19,7 @@ resource "aws_launch_configuration" "elite_conf" {
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = "t3.large"
   key_name        = aws_key_pair.mykeypair.key_name
-  security_groups = [aws_security_group.ec2-sg.id]
+  security_groups = [aws_security_group.ec2-sg.id,aws_security_group.main-alb.id]
 
   lifecycle {
     create_before_destroy = true
