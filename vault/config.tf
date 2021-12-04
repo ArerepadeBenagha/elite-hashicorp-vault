@@ -15,7 +15,7 @@ terraform {
     organization = "EliteSolutionsIT"
 
     workspaces {
-      name = "elite-gh-actions-test"
+      name = "elite-hashicorp-vault"
     }
   }
 }
