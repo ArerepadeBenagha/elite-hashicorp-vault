@@ -166,7 +166,7 @@ resource "aws_lb_target_group" "vaultapp_tglb" {
 }
 resource "aws_lb_target_group_attachment" "vault_tg" {
   target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
-  target_id        = aws_instance.vaultserver.id
+  target_id        = aws_instance.vault-server.id
   port             = 8200
 }
 ####---- Redirect Rule -----####
