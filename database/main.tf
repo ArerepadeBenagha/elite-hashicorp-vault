@@ -140,7 +140,7 @@ resource "aws_db_instance" "mysql" {
   vpc_security_group_ids  = [aws_security_group.ec2-sg.id,aws_security_group.main-mysql.id]
   storage_type            = "gp2"
   backup_retention_period = 30                                          # how long you’re going to keep your backups
-  availability_zone       = [aws_subnet.main-private-1.availability_zone,aws_subnet.main-private-2.availability_zone] # prefered AZ
+  availability_zone       = aws_subnet.main-private-1.availability_zone  # prefered AZ
   skip_final_snapshot     = true                                        # skip final snapshot when doing terraform destroy
   tags = {
     Name = "mysql-instance"
