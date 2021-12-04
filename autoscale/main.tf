@@ -18,7 +18,7 @@ resource "aws_launch_configuration" "elite_conf" {
   name_prefix     = join("-", [local.application.app_name, "elite-scalevm"])
   image_id        = data.aws_ami.ubuntu.id
   instance_type   = "t3.large"
-  key_name        = aws_key_pair.mykeypair.name
+  key_name        = aws_key_pair.mykeypair.key_name
   security_groups = [aws_security_group.ec2-sg.id]
 
   lifecycle {
