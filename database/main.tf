@@ -116,7 +116,7 @@ resource "aws_db_subnet_group" "mysql-subnet" {
 
 resource "aws_db_parameter_group" "mysql-parameters" {
   name        = "mysql-param"
-  family      = "mysql5.6"
+  family      = "mysql5.7"
   description = "mysql parameter group"
 
   parameter {
