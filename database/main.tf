@@ -111,7 +111,7 @@ resource "aws_route_table_association" "main-public-3-a" {
 resource "aws_db_subnet_group" "mysql-subnet" {
   name        = "mysql-dbsubnet"
   description = "RDS subnet group"
-  subnet_ids  = [aws_subnet.main-private-1.id, aws_subnet.main-public-1.id]
+  subnet_ids  = [aws_subnet.main-private-1.id, aws_subnet.main-public-2.id]
 }
 
 resource "aws_db_parameter_group" "mysql-parameters" {
