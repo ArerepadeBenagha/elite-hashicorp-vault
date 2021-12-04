@@ -108,8 +108,8 @@ resource "aws_route_table_association" "main-public-3-a" {
   route_table_id = aws_route_table.main-public.id
 }
 
-###########------ docker Server -----########
-resource "aws_instance" "dockerserver" {
+###########------ vault- Server -----########
+resource "aws_instance" "vault-server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.main-public-1.id
@@ -120,7 +120,7 @@ resource "aws_instance" "dockerserver" {
     ignore_changes = [ami, user_data_base64]
   }
   tags = merge(local.common_tags,
-    { Name = "docker-server"
+    { Name = "vault-server"
   Application = "public" })
 }
 resource "aws_key_pair" "mykeypair" {
