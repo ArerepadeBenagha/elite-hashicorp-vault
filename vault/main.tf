@@ -127,3 +127,187 @@ resource "aws_key_pair" "mykeypair" {
   key_name   = "mykeypair"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDhD5ucWIfFwBeOm9WcbYBPCqf/Ut7rKfwbHL6XRX3QRz8Tfm621iEHdl+XkF2g/Sef4Nk0pSGE3in0mwyEzILAHviu82YEcH8a6HiHVIfPrdo3s55p6RupaBmIXvZohkqKhLMLFgZoPWFMQS9uGr6vQM5HK91XILtOmKpLnTre/JbTxhq1cqzQLPwROJ2mx8IWf4w1KI6ZIFQkuIB4xugQNOG/PCiUx5D+N4u5HrMq4sTMW3lcUtbUUNAvHYdw9AaSwnPPTnsmPHAOS84fmd96T2I0H0DclTzMgWvchKiEK/oSzYKcT6GZysCnIlWmJIFm8sgfwiT+T4ya+WkW3bTnkZeCxNLUVl+6TDAgGlIMq1i2NicB5kZzM7CMB/hlLZzJ8WZQdlhrVOSUyZYeXzdxeW//SJ0N1z3HO58nLHL8Wg71wjSS+d39zUdVQy+Ew2UF6aMPOrzKyK4FKTqu0iFkKpRbI89J9dWRU7/vesgyKUOtQCVh0Vloq3KfYju/Nm8= lbena@LAPTOP-QB0DU4OG"
 }
+###-------- ALB -------###
+resource "aws_lb" "vault" {
+  name               = join("-", [local.application.app_name, "vaultb"])
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.main-alb.id]
+  subnets            = [aws_subnet.main-public-1.id, aws_subnet.main-public-2.id]
+  idle_timeout       = "60"
+
+  access_logs {
+    bucket  = aws_s3_bucket.logs_s3dev.bucket
+    prefix  = join("-", [local.application.app_name, "vaultb-s3logs"])
+    enabled = true
+  }
+  tags = merge(local.common_tags,
+    { Name = "vaultserver"
+  Application = "public" })
+}
+###------- ALB Health Check -------###
+resource "aws_lb_target_group" "vaultapp_tglb" {
+  name     = join("-", [local.application.app_name, "vaultapptglb"])
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    path                = "/"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    healthy_threshold   = "5"
+    unhealthy_threshold = "2"
+    timeout             = "5"
+    interval            = "30"
+    matcher             = "200"
+  }
+}
+resource "aws_lb_target_group_attachment" "vault_tg" {
+  target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
+  target_id        = aws_instance.vaultserver.id
+  port             = 8200
+}
+####---- Redirect Rule -----####
+resource "aws_lb_listener" "vault_listA" {
+  load_balancer_arn = aws_lb.vault.arn
+  port              = "8200"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+########------- S3 Bucket -----------####
+resource "aws_s3_bucket" "logs_s3dev" {
+  bucket = join("-", [local.application.app_name, "logdev"])
+  acl    = "private"
+
+  tags = merge(local.common_tags,
+    { Name = "vaultserver"
+  bucket = "private" })
+}
+resource "aws_s3_bucket_policy" "logs_s3dev" {
+  bucket = aws_s3_bucket.logs_s3dev.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "MYBUCKETPOLICY"
+    Statement = [
+      {
+        Sid       = "Allow"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.logs_s3dev.arn,
+          "${aws_s3_bucket.logs_s3dev.arn}/*",
+        ]
+        Condition = {
+          NotIpAddress = {
+            "aws:SourceIp" = "8.8.8.8/32"
+          }
+        }
+      },
+    ]
+  })
+}
+#IAM
+resource "aws_iam_role" "vault_role" {
+  name = join("-", [local.application.app_name, "vaultrole"])
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = merge(local.common_tags,
+    { Name = "vaultserver"
+  Role = "vaultrole" })
+}
+
+#######------- IAM Role ------######
+resource "aws_iam_role_policy" "vault_policy" {
+  name = join("-", [local.application.app_name, "vaultpolicy"])
+  role = aws_iam_role.vault_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ec2:Describe*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+#####------ Certificate -----------####
+resource "aws_acm_certificate" "vaultcert" {
+  domain_name       = "*.elietesolutionsit.de"
+  validation_method = "DNS"
+  lifecycle {
+    create_before_destroy = true
+  }
+  tags = merge(local.common_tags,
+    { Name = "elite-vaultdev.elietesolutionsit.de"
+  Cert = "vaultcert" })
+}
+
+###------- Cert Validation -------###
+data "aws_route53_zone" "main-zone" {
+  name         = "elietesolutionsit.de"
+  private_zone = false
+}
+
+resource "aws_route53_record" "vaultzone_record" {
+  for_each = {
+    for dvo in aws_acm_certificate.vaultcert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.main-zone.zone_id
+}
+
+resource "aws_acm_certificate_validation" "vaultcert" {
+  certificate_arn         = aws_acm_certificate.vaultcert.arn
+  validation_record_fqdns = [for record in aws_route53_record.vaultzone_record : record.fqdn]
+}
+
+##------- ALB Alias record ----------##
+resource "aws_route53_record" "www" {
+  zone_id = data.aws_route53_zone.main-zone.zone_id
+  name    = "registration-app.elietesolutionsit.de"
+  type    = "A"
+
+  alias {
+    name                   = aws_lb.vault.dns_name
+    zone_id                = aws_lb.vault.zone_id
+    evaluate_target_health = true
+  }
+}
+
