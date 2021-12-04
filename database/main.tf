@@ -141,7 +141,8 @@ resource "aws_db_instance" "mysql" {
   storage_type            = "gp2"
   backup_retention_period = 30                                          # how long you’re going to keep your backups
   availability_zone       = aws_subnet.main-private-1.availability_zone # prefered AZ
-  skip_final_snapshot     = true                                        # skip final snapshot when doing terraform destroy
+  skip_final_snapshot     = true
+  publicly_accessible     = true                                        # skip final snapshot when doing terraform destroy
   tags = {
     Name = "mysql-instance"
   }
