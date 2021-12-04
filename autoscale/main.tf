@@ -39,6 +39,7 @@ resource "aws_autoscaling_group" "elite_autoscale" {
   max_size             = 2
   health_check_type    = "ELB"
   force_delete         = true
+  default_cooldown     = "30"
 
   lifecycle {
     create_before_destroy = true
