@@ -35,11 +35,11 @@ resource "aws_autoscaling_group" "elite_autoscale" {
   name                 = join("-", [local.application.app_name, "elite-scalegroup"])
   launch_configuration = aws_launch_configuration.elite_conf.name
   vpc_zone_identifier  = [aws_subnet.main-public-1.id, aws_subnet.main-public-2.id]
-  min_size             = 1
-  max_size             = 2
+  min_size             = 2
+  max_size             = 4
   health_check_type    = "ELB"
   force_delete         = true
-  default_cooldown     = "30"
+  default_cooldown     = "60"
 
   lifecycle {
     create_before_destroy = true
@@ -160,4 +160,94 @@ resource "aws_route_table_association" "main-public-2-a" {
 resource "aws_route_table_association" "main-public-3-a" {
   subnet_id      = aws_subnet.main-public-3.id
   route_table_id = aws_route_table.main-public.id
+}
+###-------- ALB -------###
+resource "aws_lb" "autoscalealb" {
+  name               = join("-", [local.application.app_name, "autoscalealb"])
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.main-alb.id]
+  subnets            = [aws_subnet.main-public-1.id, aws_subnet.main-public-2.id]
+  idle_timeout       = "60"
+
+  access_logs {
+    bucket  = aws_s3_bucket.logs_s3dev.bucket
+    prefix  = join("-", [local.application.app_name, "autoscalealb-s3logs"])
+    enabled = true
+  }
+  tags = merge(local.common_tags,
+    { Name = "autoscalealbserver"
+  Application = "public" })
+}
+###------- ALB Health Check -------###
+resource "aws_lb_target_group" "autoscalealbapp_tglb" {
+  name     = join("-", [local.application.app_name, "autoscalealbtglb"])
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+
+  health_check {
+    path                = "/"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    healthy_threshold   = "5"
+    unhealthy_threshold = "2"
+    timeout             = "5"
+    interval            = "30"
+    matcher             = "200"
+  }
+}
+
+resource "aws_autoscaling_attachment" "asg_attachment_bar" {
+  autoscaling_group_name = aws_autoscaling_group.asg.id
+  alb_target_group_arn   = aws_lb_target_group.autoscalealbapp_tglb.arn
+}
+####---- Redirect Rule -----####
+resource "aws_lb_listener" "autoscalealb_listA" {
+  load_balancer_arn = aws_lb.autoscalealb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+########------- S3 Bucket -----------####
+resource "aws_s3_bucket" "logs_s3dev" {
+  bucket = join("-", [local.application.app_name, "logdev"])
+  acl    = "private"
+
+  tags = merge(local.common_tags,
+    { Name = "vaultserver"
+  bucket = "private" })
+}
+resource "aws_s3_bucket_policy" "logs_s3dev" {
+  bucket = aws_s3_bucket.logs_s3dev.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "MYBUCKETPOLICY"
+    Statement = [
+      {
+        Sid       = "Allow"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.logs_s3dev.arn,
+          "${aws_s3_bucket.logs_s3dev.arn}/*",
+        ]
+        Condition = {
+          NotIpAddress = {
+            "aws:SourceIp" = "8.8.8.8/32"
+          }
+        }
+      },
+    ]
+  })
 }
