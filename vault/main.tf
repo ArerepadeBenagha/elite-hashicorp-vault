@@ -193,7 +193,7 @@ resource "aws_lb_listener" "vault_listB" {
   certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/5ab3834b-4a6b-4492-8adb-977bd87318d5"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.nginxapp_tglb.arn
+    target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
   }
 }
 ########------- S3 Bucket -----------####
