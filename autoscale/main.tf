@@ -198,8 +198,8 @@ resource "aws_lb_target_group" "autoscalealbapp_tglb" {
   }
 }
 
-resource "aws_autoscaling_attachment" "asg_attachment_bar" {
-  autoscaling_group_name = aws_autoscaling_group.asg.id
+resource "aws_autoscaling_attachment" "asg_attachment" {
+  autoscaling_group_name = aws_autoscaling_group.elite_autoscale.id
   alb_target_group_arn   = aws_lb_target_group.autoscalealbapp_tglb.arn
 }
 ####---- Redirect Rule -----####
