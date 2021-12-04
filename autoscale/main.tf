@@ -40,6 +40,7 @@ resource "aws_autoscaling_group" "elite_autoscale" {
   health_check_type    = "ELB"
   force_delete         = true
   default_cooldown     = "60"
+  target_group_arns    = [aws_lb_target_group.autoscalealbapp_tglb.arn]
 
   lifecycle {
     create_before_destroy = true
