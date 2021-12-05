@@ -115,7 +115,7 @@ resource "aws_instance" "vault-server" {
   subnet_id              = aws_subnet.main-public-1.id
   key_name               = aws_key_pair.mykeypair.key_name
   vpc_security_group_ids = [aws_security_group.ec2-sg.id, aws_security_group.main-alb.id]
-  user_data_base64       = data.cloudinit_config.userdata.rendered
+  user_data              = "${data.template_file.userdata_vault.rendered}"
   lifecycle {
     ignore_changes = [ami, user_data_base64]
   }
@@ -185,17 +185,17 @@ resource "aws_lb_listener" "vault_listA" {
   }
 }
 ####-------- SSL Cert ------#####
-resource "aws_lb_listener" "vault_listB" {
-  load_balancer_arn = aws_lb.vault.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/8c77b4a6-4350-40cb-84c2-c5ac1119c4bf"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
-  }
-}
+# resource "aws_lb_listener" "vault_listB" {
+#   load_balancer_arn = aws_lb.vault.arn
+#   port              = "443"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+#   certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/8c77b4a6-4350-40cb-84c2-c5ac1119c4bf"
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
+#   }
+# }
 ########------- S3 Bucket -----------####
 resource "aws_s3_bucket" "logs_s3dev" {
   bucket = join("-", [local.application.app_name, "logdev"])
