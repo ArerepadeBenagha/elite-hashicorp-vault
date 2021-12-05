@@ -19,9 +19,9 @@ listener "tcp" {
   tls_disable = "true"
 }
 
-api_addr = "http://{localhost}:8200"
-cluster_addr = "https://{localhost}:8201"
+api_addr = "http://{aws_instance.vault-server.public_ip}:8200"
+cluster_addr = "https://{aws_instance.vault-server.public_ip}:8201"
 EOF
 
 # Start Vault server
-vault server -config=config.hcl
+vault server -config=config.hcl &
