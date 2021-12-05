@@ -1,25 +1,10 @@
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
 resource "aws_launch_configuration" "elite_conf" {
-  name_prefix     = join("-", [local.application.app_name, "elite-scalevm"])
-  image_id        = data.aws_ami.ubuntu.id
-  instance_type   = "t3.large"
-  key_name        = aws_key_pair.mykeypair.key_name
-  security_groups = [aws_security_group.ec2-sg.id,aws_security_group.main-alb.id]
+  name_prefix      = join("-", [local.application.app_name, "elite-scalevm"])
+  image_id         = data.aws_ami.ubuntu.id
+  instance_type    = var.instance_type
+  key_name         = aws_key_pair.mykeypair.key_name
+  security_groups  = [aws_security_group.ec2-sg.id, aws_security_group.main-alb.id]
+  user_data_base64 = data.cloudinit_config.userdata.rendered
 
   lifecycle {
     create_before_destroy = true
@@ -40,215 +25,56 @@ resource "aws_autoscaling_group" "elite_autoscale" {
   health_check_type    = "ELB"
   force_delete         = true
   default_cooldown     = "60"
-  target_group_arns    = [aws_lb_target_group.autoscalealbapp_tglb.arn]
 
   lifecycle {
     create_before_destroy = true
   }
 }
-resource "aws_autoscaling_policy" "autoscale_policy" {
-  name                   = join("-", [local.application.app_name, "elite-scalepolicy"])
-  scaling_adjustment     = 4
-  adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+
+resource "aws_cloudwatch_metric_alarm" "example-cpu-alarm" {
+  alarm_name          = join("-", [local.application.app_name, "elitedev-cpu-alarm"])
+  alarm_description   = "example-cpu-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "30"
+
+  dimensions = {
+    "AutoScalingGroupName" = aws_autoscaling_group.elite_autoscale.name
+  }
+
+  actions_enabled = true
+  alarm_actions   = [aws_autoscaling_policy.elite-autoscalepolicy.arn]
+}
+
+# scale down alarm
+resource "aws_autoscaling_policy" "elite-autoscalepolicy-scaledown" {
+  name                   = join("-", [local.application.app_name, "elitedev-scaledown"])
   autoscaling_group_name = aws_autoscaling_group.elite_autoscale.name
-}
-# Vars.tf
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
-  instance_tenancy     = "default"
-  enable_dns_support   = "true"
-  enable_dns_hostnames = "true"
-  enable_classiclink   = "false"
-  tags = {
-    Name = "main"
-  }
+  adjustment_type        = "ChangeInCapacity"
+  scaling_adjustment     = "-1"
+  cooldown               = "300"
+  policy_type            = "SimpleScaling"
 }
 
-# Subnets
-resource "aws_subnet" "main-public-1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
-  map_public_ip_on_launch = "true"
-  availability_zone       = "us-east-1a"
+resource "aws_cloudwatch_metric_alarm" "example-cpu-alarm-scaledown" {
+  alarm_name          = join("-", [local.application.app_name, "elitedev-metricalarm"])
+  alarm_description   = "example-cpu-alarm-scaledown"
+  comparison_operator = "LessThanOrEqualToThreshold"
+  evaluation_periods  = "2"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = "5"
 
-  tags = {
-    Name = "Main-public-1"
-  }
-}
-resource "aws_subnet" "main-public-2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.2.0/24"
-  map_public_ip_on_launch = "true"
-  availability_zone       = "us-east-1b"
-
-  tags = {
-    Name = "Main-public-2"
-  }
-}
-resource "aws_subnet" "main-public-3" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.3.0/24"
-  map_public_ip_on_launch = "true"
-  availability_zone       = "us-east-1c"
-
-  tags = {
-    Name = "Main-public-3"
-  }
-}
-resource "aws_subnet" "main-private-1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.4.0/24"
-  map_public_ip_on_launch = "false"
-  availability_zone       = "us-east-1a"
-
-  tags = {
-    Name = "Main-private-1"
-  }
-}
-resource "aws_subnet" "main-private-2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.5.0/24"
-  map_public_ip_on_launch = "false"
-  availability_zone       = "us-east-1b"
-
-  tags = {
-    Name = "Main-private-2"
-  }
-}
-resource "aws_subnet" "main-private-3" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.6.0/24"
-  map_public_ip_on_launch = "false"
-  availability_zone       = "us-east-1c"
-
-  tags = {
-    Name = "Main-private-3"
-  }
-}
-
-# Internet GW
-resource "aws_internet_gateway" "main-gw" {
-  vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "main"
-  }
-}
-
-# route tables
-resource "aws_route_table" "main-public" {
-  vpc_id = aws_vpc.main.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.main-gw.id
+  dimensions = {
+    "AutoScalingGroupName" = aws_autoscaling_group.elite_autoscale.name
   }
 
-  tags = {
-    Name = "main-public-1"
-  }
-}
-
-# route associations public
-resource "aws_route_table_association" "main-public-1-a" {
-  subnet_id      = aws_subnet.main-public-1.id
-  route_table_id = aws_route_table.main-public.id
-}
-resource "aws_route_table_association" "main-public-2-a" {
-  subnet_id      = aws_subnet.main-public-2.id
-  route_table_id = aws_route_table.main-public.id
-}
-resource "aws_route_table_association" "main-public-3-a" {
-  subnet_id      = aws_subnet.main-public-3.id
-  route_table_id = aws_route_table.main-public.id
-}
-###-------- ALB -------###
-resource "aws_lb" "autoscalealb" {
-  name               = join("-", [local.application.app_name, "autoscalealb"])
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.main-alb.id]
-  subnets            = [aws_subnet.main-public-1.id, aws_subnet.main-public-2.id]
-  idle_timeout       = "60"
-
-  access_logs {
-    bucket  = aws_s3_bucket.logs_s3dev.bucket
-    prefix  = join("-", [local.application.app_name, "autoscalealb-s3logs"])
-    enabled = true
-  }
-  tags = merge(local.common_tags,
-    { Name = "autoscalealbserver"
-  Application = "public" })
-}
-###------- ALB Health Check -------###
-resource "aws_lb_target_group" "autoscalealbapp_tglb" {
-  name     = join("-", [local.application.app_name, "autoscalealbtglb"])
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
-
-  health_check {
-    path                = "/"
-    port                = "traffic-port"
-    protocol            = "HTTP"
-    healthy_threshold   = "5"
-    unhealthy_threshold = "2"
-    timeout             = "5"
-    interval            = "30"
-    matcher             = "200"
-  }
-}
-
-resource "aws_autoscaling_attachment" "asg_attachment" {
-  autoscaling_group_name = aws_autoscaling_group.elite_autoscale.id
-  alb_target_group_arn   = aws_lb_target_group.autoscalealbapp_tglb.arn
-}
-####---- Redirect Rule -----####
-resource "aws_lb_listener" "autoscalealb_listA" {
-  load_balancer_arn = aws_lb.autoscalealb.arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "redirect"
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
-########------- S3 Bucket -----------####
-resource "aws_s3_bucket" "logs_s3dev" {
-  bucket = join("-", [local.application.app_name, "logdev"])
-  acl    = "private"
-
-  tags = merge(local.common_tags,
-    { Name = "vaultserver"
-  bucket = "private" })
-}
-resource "aws_s3_bucket_policy" "logs_s3dev" {
-  bucket = aws_s3_bucket.logs_s3dev.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Id      = "MYBUCKETPOLICY"
-    Statement = [
-      {
-        Sid       = "Allow"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:*"
-        Resource = [
-          aws_s3_bucket.logs_s3dev.arn,
-          "${aws_s3_bucket.logs_s3dev.arn}/*",
-        ]
-        Condition = {
-          NotIpAddress = {
-            "aws:SourceIp" = "8.8.8.8/32"
-          }
-        }
-      },
-    ]
-  })
+  actions_enabled = true
+  alarm_actions   = [aws_autoscaling_policy.elite-autoscalepolicy-scaledown.arn]
 }
