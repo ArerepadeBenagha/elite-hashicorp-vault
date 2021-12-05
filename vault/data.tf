@@ -23,7 +23,7 @@ data "cloudinit_config" "userdata" {
     filename     = "userdata_docker"
     content = templatefile("../templates/userdata_vault.tpl",
       {
-        localhost = "${aws_instance.vault-server.private_ip}"
+        localhost = aws_instance.vault-server.public_ip
       }
     )
   }
