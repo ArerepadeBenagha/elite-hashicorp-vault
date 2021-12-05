@@ -1,4 +1,5 @@
 #! /bin/bash
+sleep 60
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 sudo apt-get update -y && sudo apt-get install vault -y
@@ -20,8 +21,8 @@ listener "tcp" {
   tls_disable = "true"
 }
 
-api_addr="http://${var.localhost}:8200"
-cluster_addr="https://${var.localhost}:8201"
+api_addr="http://${localhost}:8200"
+cluster_addr="https://${localhost}:8201"
 EOF
 
 # Start Vault server
