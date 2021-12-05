@@ -323,19 +323,3 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
-
-#Userdata
-data "cloudinit_config" "userdata" {
-  gzip          = true
-  base64_encode = true
-
-  part {
-    content_type = "text/x-shellscript"
-    filename     = "userdata_docker"
-    content = templatefile("../templates/userdata_vault.tpl",
-      {
-        localhost = aws.instance.vault-server.public_ip
-      }
-    )
-  }
-}

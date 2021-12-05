@@ -13,3 +13,18 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"] # Canonical
 }
+#Userdata
+data "cloudinit_config" "userdata" {
+  gzip          = true
+  base64_encode = true
+
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "userdata_docker"
+    content = templatefile("../templates/userdata_vault.tpl",
+      {
+        localhost = aws_instance.vault-server.public_ip
+      }
+    )
+  }
+}
