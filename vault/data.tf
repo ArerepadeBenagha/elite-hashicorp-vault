@@ -5,7 +5,11 @@ data "cloudinit_config" "userdata" {
   part {
     content_type = "text/x-shellscript"
     filename     = "userdata_docker"
-    content      = templatefile("../templates/userdata_vault.tpl", {})
+    content = templatefile("../templates/userdata_vault.tpl",
+      {
+        localhost = aws.instance.vault-server.public_ip
+      }
+    )
   }
 }
 
