@@ -115,7 +115,7 @@ resource "aws_instance" "vault-server" {
   subnet_id              = aws_subnet.main-public-1.id
   key_name               = aws_key_pair.mykeypair.key_name
   vpc_security_group_ids = [aws_security_group.ec2-sg.id, aws_security_group.main-alb.id]
-  # user_data              = "${data.template_file.userdata_vault.rendered}"
+  user_data              = "${data.template_file.userdata_vault.rendered}"
   lifecycle {
     ignore_changes = [ami, user_data_base64]
   }
