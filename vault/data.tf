@@ -21,11 +21,7 @@ data "cloudinit_config" "userdata" {
   part {
     content_type = "text/x-shellscript"
     filename     = "userdata_docker"
-    content = templatefile("../templates/userdata_vault.tpl",
-      {
-        # localhost = "${aws_instance.vault-server.public_ip}"
-      }
-    )
+    content = templatefile("../templates/userdata_vault.tpl",{})
   }
 }
 
