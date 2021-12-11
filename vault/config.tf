@@ -9,7 +9,8 @@ terraform {
       version = "3.0.1"
     }
     datadog = {
-      source = "DataDog/datadog"
+      source                = "DataDog/datadog"
+      configuration_aliases = [datadog.datadog_dev]
     }
   }
   required_version = ">= 0.14"
