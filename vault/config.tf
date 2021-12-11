@@ -8,6 +8,9 @@ terraform {
       source  = "hashicorp/random"
       version = "3.0.1"
     }
+    datadog = {
+      source = "DataDog/datadog"
+    }
   }
   required_version = ">= 0.14"
 
@@ -27,17 +30,6 @@ terraform {
 provider "aws" {
   region = "us-east-1"
 }
-
-# Terraform 0.13+ uses the Terraform Registry:
-
-terraform {
-  required_providers {
-    datadog = {
-      source = "DataDog/datadog"
-    }
-  }
-}
-
 
 # Configure the Datadog provider
 provider "datadog" {
