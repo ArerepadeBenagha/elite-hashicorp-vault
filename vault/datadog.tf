@@ -36,6 +36,5 @@ resource "datadog_monitor" "elitedatadog" {
   include_tags = true
 
   tags = merge(local.common_tags,
-    { Name = "datadog monitor"
-  Application = "public" })
+  { Name = "datadog monitor", Application = "public" })
 }
