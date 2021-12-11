@@ -24,7 +24,7 @@ resource "datadog_monitor" "elitedatadog" {
 
   monitor_thresholds {
     warning           = 50
-    warning_recovery  = 85
+    warning_recovery  = 30
     critical          = 85
     critical_recovery = 50
   }
