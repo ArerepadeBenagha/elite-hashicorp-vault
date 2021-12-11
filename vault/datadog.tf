@@ -35,6 +35,5 @@ resource "datadog_monitor" "elitedatadog" {
   timeout_h    = 60
   include_tags = true
 
-  tags = merge(local.common_tags,
-  { Name = "datadog monitor", Application = "public" })
+  tags = ["Application:vault-server", "datadog"]
 }
