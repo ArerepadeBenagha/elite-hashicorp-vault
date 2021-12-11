@@ -3,8 +3,8 @@ variable "instance_type" {
   description = "instance size for ec2"
 }
 variable "datadog_api_key" {
-  default = string
+  type = string
 }
 variable "datadog_app_key" {
-  default = string
+  type = string
 }
