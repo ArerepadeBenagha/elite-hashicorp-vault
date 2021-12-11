@@ -23,7 +23,7 @@ resource "datadog_monitor" "elitedatadog" {
   query = "avg(last_5m):${var.cpu_usage["query"]}{*} by ${var.trigger_by} > ${var.cpu_usage["threshold"]}"
 
   monitor_thresholds {
-    warning           = 70
+    warning           = 90
     warning_recovery  = 85
     critical          = 85
     critical_recovery = 90
