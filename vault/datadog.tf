@@ -16,20 +16,17 @@
 resource "datadog_monitor" "elitedatadog" {
   name               = "elitedatadog"
   type               = "metric alert"
+  message            = "Monitor triggered. Notify: @hipchat-channel"
   escalation_message = "Escalation message @pagerduty"
   provider           = datadog.datadog_dev
 
   query = "avg(last_5m):${var.cpu_usage["query"]}{*} by ${var.trigger_by} > ${var.cpu_usage["threshold"]}"
 
-  message = <<EOM
-CPU usage high: {{value}}
-${var.datadog_alert_footer}
-EOM
   monitor_thresholds {
-    warning           = 2
-    warning_recovery  = 1
-    critical          = 4
-    critical_recovery = 3
+    warning           = 70
+    warning_recovery  = 85
+    critical          = 90
+    critical_recovery = 85
   }
 
   notify_no_data    = true
