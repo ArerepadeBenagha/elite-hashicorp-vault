@@ -18,6 +18,7 @@ resource "datadog_monitor" "elitedatadog" {
   type               = "metric alert"
   message            = "Monitor triggered. Notify: @hipchat-channel"
   escalation_message = "Escalation message @pagerduty"
+  provider           = datadog.datadog_dev
 
   query = "avg(last_5m):${var.cpu_usage["query"]}{*} by ${var.trigger_by} > ${var.cpu_usage["threshold"]}"
 
