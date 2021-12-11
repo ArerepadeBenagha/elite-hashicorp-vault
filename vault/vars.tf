@@ -2,8 +2,12 @@ variable "instance_type" {
   type        = string
   description = "instance size for ec2"
 }
-variable "datadog_api_key" {}
-variable "datadog_app_key" {}
+variable "datadog_api_key" {
+  type = string
+}
+variable "datadog_app_key" {
+  type = string
+}
 
 # Variable defining the query and threshold shared by a monitor and graph for the CPU usage.
 variable "cpu_usage" {
