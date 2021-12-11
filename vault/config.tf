@@ -41,7 +41,7 @@ terraform {
 
 # Configure the Datadog provider
 provider "datadog" {
-  alias   = datadog
+  alias   = "datadog_dev"
   api_key = var.datadog_api_key
   app_key = var.datadog_app_key
 }
