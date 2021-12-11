@@ -21,3 +21,11 @@ variable "cpu_usage" {
 variable "trigger_by" {
   default = "{host,env}"
 }
+variable "datadog_alert_footer" {
+  default = <<EOF
+{{#is_no_data}}Not receiving data{{/is_no_data}}
+{{#is_alert}}@pagerduty{{/is_alert}}
+{{#is_recovery}}@pagerduty-resolve{{/is_recovery}}
+@slack-alerts
+EOF
+}
