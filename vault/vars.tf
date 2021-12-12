@@ -24,3 +24,6 @@ variable "trigger_by" {
 variable "bucket_name" {
   type = string
 }
+variable "domain_name" {
+  type = string
+}
