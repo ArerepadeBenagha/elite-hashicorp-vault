@@ -328,6 +328,19 @@ resource "aws_s3_bucket" "root_bucket" {
   bucket = var.bucket_name
   acl    = "public-read"
   # policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    "Statement" : [
+      {
+        "Sid" : "PublicReadGetObject"
+        "Principal" : "*"
+        "Effect" : "Allow"
+        "Action" : "s3:GetObject"
+        "Resource" : "arn:aws:s3:::elite-vaultdev.elietesolutionsit.de/*"
+      }
+    ]
+  })
   website {
     redirect_all_requests_to = "https://www.${var.domain_name}"
   }
