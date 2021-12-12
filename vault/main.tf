@@ -337,7 +337,7 @@ resource "aws_s3_bucket" "root_bucket" {
           "Sid": "PublicReadGetObject",
           "Effect": "Allow",
           "Principal": "*",
-          "Action": "s3:GetObject",
+          "Action": "s3:GetObject"
     }
   ]
 }
