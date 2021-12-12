@@ -327,8 +327,22 @@ resource "aws_route53_record" "www" {
 resource "aws_s3_bucket" "root_bucket" {
   bucket = var.bucket_name
   acl    = "public-read"
-  policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
+  # policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
 
+  policy = <<POLICY
+  {
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Sid": "PublicReadGetObject",
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::${bucket}/*"
+    }
+  ]
+}
+POLICY
   website {
     redirect_all_requests_to = "https://www.${var.domain_name}"
   }
