@@ -329,19 +329,18 @@ resource "aws_s3_bucket" "root_bucket" {
   acl    = "public-read"
   # policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
 
-  policy = <<POLICY
-  {
-  "Version": "2012-10-17",
-  "Statement": [
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
       {
-          "Sid": "PublicReadGetObject",
-          "Effect": "Allow",
-          "Principal": "*",
-          "Action": "s3:GetObject"
-    }
-  ]
-}
-POLICY
+        Action = [
+          "s3:GetObject*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
   website {
     redirect_all_requests_to = "https://www.${var.domain_name}"
   }
