@@ -331,17 +331,14 @@ resource "aws_s3_bucket" "root_bucket" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
+    "Statement" : [
       {
-        Action = [
-          "s3:GetObject*"
-        ]
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "s3.amazonaws.com"
-        }
-      },
+        "Sid" : "Statement1"
+        "Principal" : {}
+        "Effect" : "Allow"
+        "Action" : []
+        "Resource" : []
+      }
     ]
   })
   website {
