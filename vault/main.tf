@@ -333,10 +333,10 @@ resource "aws_s3_bucket" "root_bucket" {
     Version = "2012-10-17"
     "Statement" : [
       {
-        "Sid" : "Statement1"
-        "Principal" : {}
+        "Sid" : "PublicReadGetObject"
+        "Principal" : "*"
         "Effect" : "Allow"
-        "Action" : []
+        "Action" : "s3:GetObject"
         "Resource" : []
       }
     ]
