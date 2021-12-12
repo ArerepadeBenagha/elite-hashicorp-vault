@@ -21,3 +21,6 @@ variable "cpu_usage" {
 variable "trigger_by" {
   default = "{host,env}"
 }
+variable "bucket_name" {
+  type = string
+}

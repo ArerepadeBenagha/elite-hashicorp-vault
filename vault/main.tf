@@ -314,7 +314,7 @@ resource "aws_acm_certificate_validation" "vaultcert" {
 ##------- ALB Alias record ----------##
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "www.elite-vaultdev.elietesolutionsit.de"
+  name    = "elite-vaultdev.elietesolutionsit.de"
   type    = "A"
 
   alias {
@@ -323,16 +323,16 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
-# resource "aws_route53_record" "www-elitedev" {
-#   zone_id = data.aws_route53_zone.main-zone.zone_id
-#   name    = "www.elite-vaultdev.elietesolutionsit.de"
-#   type    = "CNAME"
-#   ttl     = "5"
+# S3 bucket for redirecting non-www to www.
+resource "aws_s3_bucket" "root_bucket" {
+  bucket = var.bucket_name
+  acl    = "public-read"
+  policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
 
-#   weighted_routing_policy {
-#     weight = 10
-#   }
-
-#   set_identifier = "dev"
-#   records        = ["elite-vaultdev.elietesolutionsit.de"]
-# }
+  website {
+    redirect_all_requests_to = "https://www.${var.domain_name}"
+  }
+  tags = merge(local.common_tags,
+    { Name = "Redirect website"
+  Environment = "vault dev" })
+}
