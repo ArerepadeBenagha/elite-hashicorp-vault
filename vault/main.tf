@@ -325,7 +325,7 @@ resource "aws_route53_record" "www" {
 }
 resource "aws_route53_record" "www-elitedev" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "www"
+  name    = "www.elite-vaultdev.elietesolutionsit.de"
   type    = "CNAME"
   ttl     = "5"
 
