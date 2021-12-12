@@ -334,10 +334,13 @@ resource "aws_s3_bucket" "root_bucket" {
     Statement = [
       {
         Action = [
-          "s3:GetObject*",
+          "s3:GetObject*"
         ]
-        Effect   = "Allow"
-        Resource = "*"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "s3.amazonaws.com"
+        }
       },
     ]
   })
