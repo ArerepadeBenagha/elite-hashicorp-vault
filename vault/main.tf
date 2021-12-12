@@ -323,3 +323,16 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
+resource "aws_route53_record" "www-elitedev" {
+  zone_id = aws_route53_zone.main-zone.zone_id
+  name    = "www"
+  type    = "CNAME"
+  ttl     = "5"
+
+  weighted_routing_policy {
+    weight = 10
+  }
+
+  set_identifier = "dev"
+  records        = ["elite-vaultdev.elietesolutionsit.de"]
+}
