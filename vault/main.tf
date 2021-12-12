@@ -338,7 +338,10 @@ resource "aws_s3_bucket" "root_bucket" {
           "Effect": "Allow",
           "Principal": "*",
           "Action": "s3:GetObject",
-          "Resource": "${aws_s3_bucket.root_bucket.arn}/*"
+          Resource = [
+          aws_s3_bucket.root_bucket.arn,
+          "${aws_s3_bucket.root_bucket.arn}/*",
+        ]
     }
   ]
 }
