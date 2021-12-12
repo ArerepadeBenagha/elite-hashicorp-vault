@@ -314,7 +314,7 @@ resource "aws_acm_certificate_validation" "vaultcert" {
 ##------- ALB Alias record ----------##
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "elite-vaultdev.elietesolutionsit.de"
+  name    = "www.elite-vaultdev.elietesolutionsit.de"
   type    = "A"
 
   alias {
@@ -323,16 +323,16 @@ resource "aws_route53_record" "www" {
     evaluate_target_health = true
   }
 }
-resource "aws_route53_record" "www-elitedev" {
-  zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "www.elite-vaultdev.elietesolutionsit.de"
-  type    = "CNAME"
-  ttl     = "5"
+# resource "aws_route53_record" "www-elitedev" {
+#   zone_id = data.aws_route53_zone.main-zone.zone_id
+#   name    = "www.elite-vaultdev.elietesolutionsit.de"
+#   type    = "CNAME"
+#   ttl     = "5"
 
-  weighted_routing_policy {
-    weight = 10
-  }
+#   weighted_routing_policy {
+#     weight = 10
+#   }
 
-  set_identifier = "dev"
-  records        = ["elite-vaultdev.elietesolutionsit.de"]
-}
+#   set_identifier = "dev"
+#   records        = ["elite-vaultdev.elietesolutionsit.de"]
+# }
