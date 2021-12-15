@@ -314,8 +314,8 @@ resource "aws_acm_certificate_validation" "vaultcert" {
 ##------- ALB Alias record ----------##
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "www.elitevault-dev.elietesolutionsit.de"
-  type    = "CNAME"
+  name    = "https://www.${var.site_name}"
+  type    = "A"
 
   alias {
     name                   = aws_lb.vault.dns_name

@@ -27,3 +27,7 @@ variable "bucket_name" {
 variable "domain_name" {
   type = string
 }
+
+variable "site_name" {
+  type = string
+}
