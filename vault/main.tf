@@ -184,18 +184,18 @@ resource "aws_lb_listener" "vault_listA" {
     }
   }
 }
-####-------- SSL Cert ------#####
-resource "aws_lb_listener" "vault_listB" {
-  load_balancer_arn = aws_lb.vault.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/bb43ef5b-2c72-4170-b8cf-327860be3be7"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
-  }
-}
+# ####-------- SSL Cert ------#####
+# resource "aws_lb_listener" "vault_listB" {
+#   load_balancer_arn = aws_lb.vault.arn
+#   port              = "443"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+#   certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/bb43ef5b-2c72-4170-b8cf-327860be3be7"
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
+#   }
+# }
 ########------- S3 Bucket -----------####
 resource "aws_s3_bucket" "logs_s3dev" {
   bucket = join("-", [local.application.app_name, "logdev"])
@@ -314,7 +314,7 @@ resource "aws_acm_certificate_validation" "vaultcert" {
 ##------- ALB Alias record ----------##
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "elite-vaultdev.elietesolutionsit.de"
+  name    = "www.elitevault-dev.elietesolutionsit.de"
   type    = "A"
 
   alias {
@@ -324,27 +324,27 @@ resource "aws_route53_record" "www" {
   }
 }
 # S3 bucket for redirecting non-www to www.
-resource "aws_s3_bucket" "root_bucket" {
-  bucket = var.bucket_name
-  acl    = "public-read"
-  # policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
+# resource "aws_s3_bucket" "root_bucket" {
+#   bucket = var.bucket_name
+#   acl    = "public-read"
+#   # policy = templatefile("templates/s3-policy.json", { bucket = var.bucket_name })
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    "Statement" : [
-      {
-        "Sid" : "PublicReadGetObject"
-        "Principal" : "*"
-        "Effect" : "Allow"
-        "Action" : "s3:GetObject"
-        "Resource" : "arn:aws:s3:::elite-vaultdev.elietesolutionsit.de/*"
-      }
-    ]
-  })
-  website {
-    redirect_all_requests_to = "https://www.${var.domain_name}"
-  }
-  tags = merge(local.common_tags,
-    { Name = "Redirect website"
-  Environment = "vault dev" })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     "Statement" : [
+#       {
+#         "Sid" : "PublicReadGetObject"
+#         "Principal" : "*"
+#         "Effect" : "Allow"
+#         "Action" : "s3:GetObject"
+#         "Resource" : "arn:aws:s3:::elite-vaultdev.elietesolutionsit.de/*"
+#       }
+#     ]
+#   })
+#   website {
+#     redirect_all_requests_to = "https://www.${var.domain_name}"
+#   }
+#   tags = merge(local.common_tags,
+#     { Name = "Redirect website"
+#   Environment = "vault dev" })
+# }

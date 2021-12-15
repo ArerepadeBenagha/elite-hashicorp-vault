@@ -1,0 +1,10 @@
+- hosts: servers
+  gather_facts: true
+  become: yes
+  
+  roles:
+    - datadog.datadog
+  vars:
+    datadog_api_key: REDACTED
+    datadog_agent_version: "7.16.0"
+    datadog_agent_allow_downgrade: yes
