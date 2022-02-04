@@ -190,7 +190,7 @@ resource "aws_lb_listener" "vault_listB" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  # certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/b7c51f95-a0bb-4e4a-95b6-7d3b3a519ae8"
+  certificate_arn   = "arn:aws:acm:us-east-1:375866976303:certificate/b5127c10-3d05-41ef-acb4-16973d00cff0"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
