@@ -190,7 +190,7 @@ resource "aws_lb_listener" "vault_listB" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/b7c51f95-a0bb-4e4a-95b6-7d3b3a519ae8"
+  # certificate_arn   = "arn:aws:acm:us-east-1:901445516958:certificate/b7c51f95-a0bb-4e4a-95b6-7d3b3a519ae8"
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
@@ -273,19 +273,19 @@ resource "aws_iam_role_policy" "vault_policy" {
 }
 #####------ Certificate -----------####
 resource "aws_acm_certificate" "vaultcert" {
-  domain_name       = "*.elietesolutionsit.de"
+  domain_name       = "*.elitelabtools.com"
   validation_method = "DNS"
   lifecycle {
     create_before_destroy = true
   }
   tags = merge(local.common_tags,
-    { Name = "elite-vaultdev.elietesolutionsit.de"
+    { Name = "elite-vaultdev.elitelabtools.com"
   Cert = "vaultcert" })
 }
 
 ###------- Cert Validation -------###
 data "aws_route53_zone" "main-zone" {
-  name         = "elietesolutionsit.de"
+  name         = "elitelabtools.com"
   private_zone = false
 }
 
@@ -314,7 +314,7 @@ resource "aws_acm_certificate_validation" "vaultcert" {
 ##------- ALB Alias record ----------##
 resource "aws_route53_record" "www" {
   zone_id = data.aws_route53_zone.main-zone.zone_id
-  name    = "elitevault-dev.elietesolutionsit.de"
+  name    = "elitevault-dev.elitelabtools.com"
   type    = "A"
 
   alias {
@@ -337,7 +337,7 @@ resource "aws_route53_record" "www" {
 #         "Principal" : "*"
 #         "Effect" : "Allow"
 #         "Action" : "s3:GetObject"
-#         "Resource" : "arn:aws:s3:::elite-vaultdev.elietesolutionsit.de/*"
+#         "Resource" : "arn:aws:s3:::elite-vaultdev.elitelabtools.com/*"
 #       }
 #     ]
 #   })

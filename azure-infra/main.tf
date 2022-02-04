@@ -52,7 +52,7 @@ module "vm" {
   location            = local.application.buildregion
   vm_name             = join("infra", [local.application.alias, "server"])
   nic                 = join("infra", [local.application.alias, "nic"])
-  resource_group_name = local.network.resourcegroup_name
+  resource_group_name = join("infra", [local.application.alias, "RG"])
   subnet_id           = module.vnet.vnet_subnets
   address_space       = local.network.address_space
   vm_size             = "Standard_DS2_v2"
