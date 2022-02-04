@@ -185,17 +185,17 @@ resource "aws_lb_listener" "vault_listA" {
   }
 }
 # ####-------- SSL Cert ------#####
-resource "aws_lb_listener" "vault_listB" {
-  load_balancer_arn = aws_lb.vault.arn
-  port              = "443"
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = "arn:aws:acm:us-east-1:375866976303:certificate/b5127c10-3d05-41ef-acb4-16973d00cff0"
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
-  }
-}
+# resource "aws_lb_listener" "vault_listB" {
+#   load_balancer_arn = aws_lb.vault.arn
+#   port              = "443"
+#   protocol          = "HTTPS"
+#   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+#   certificate_arn   = "arn:aws:acm:us-east-1:375866976303:certificate/b5127c10-3d05-41ef-acb4-16973d00cff0"
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
+#   }
+# }
 ########------- S3 Bucket -----------####
 resource "aws_s3_bucket" "logs_s3dev" {
   bucket = join("-", [local.application.app_name, "logdev"])
