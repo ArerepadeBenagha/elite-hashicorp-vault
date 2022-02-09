@@ -13,3 +13,17 @@ terraform {
 provider "azurerm" {
   features {}
 }
+
+# variable login_username {}
+# variable login_password {}
+
+# provider "vault" {
+#   address = "https://elitevault-dev.elitelabtools.com"
+#   auth_login {
+#     path = "auth/userpass/login/${var.login_username}"
+
+#     parameters = {
+#       password = var.login_password
+#     }
+#   }
+# }

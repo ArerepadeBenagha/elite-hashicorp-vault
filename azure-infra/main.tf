@@ -1,13 +1,4 @@
 # ##--------------------------------------#
-# //         RG Module              
-# ##--------------------------------------#
-module "azuremRG" {
-  source   = "./modules/resourcegroups"
-  name     = join("infra", [local.application.alias, "RG"])
-  location = local.application.buildregion
-}
-
-# ##--------------------------------------#
 # //         NetRG Module              
 # ##--------------------------------------#
 module "azuremRGNet" {
@@ -34,7 +25,7 @@ module "vnet" {
 # # //         Bastion Module              
 # # ##--------------------------------------#
 module "azure-bastion" {
-  source                              = "./modules/azure-network/"
+  source                              = "./modules/azure-bastion"
   RG_network                          = local.network.resource_group_name
   vnet_name                           = join("infra", [local.application.alias, "vnet"])
   azure_bastion_service_name          = join("infra", [local.application.alias, "bastion"])
@@ -52,7 +43,7 @@ module "vm" {
   location            = local.application.buildregion
   vm_name             = join("infra", [local.application.alias, "server"])
   nic                 = join("infra", [local.application.alias, "nic"])
-  resource_group_name = join("infra", [local.application.alias, "RG"])
+  resource_group_name = join("infra", [local.application.alias, "netRG"])
   subnet_id           = module.vnet.vnet_subnets
   address_space       = local.network.address_space
   vm_size             = "Standard_DS2_v2"
@@ -67,4 +58,23 @@ module "vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
+}
+
+# # ##--------------------------------------#
+# # //         Sql Module              
+# # ##--------------------------------------#
+
+module "sql" {
+  source                                     = "./modules/sql"
+  sql_account                                = local.database.sql_account
+  sql_db                                     = local.database.sql_db
+  sql_server                                 = local.database.sql_server
+  location                                   = local.application.buildregion
+  resource_group_name                        = join("infra", [local.application.alias, "netRG"])
+  administrator_login                        = local.database.administrator_login
+  administrator_password                     = local.database.administrator_password
+  tags                                       = local.common_tags
+  enable_advanced_data_security_admin_emails = true
+  advanced_data_security_additional_emails   = local.database.advanced_data_security_additional_emails
+  enable_advanced_data_security              = true
 }

@@ -9,7 +9,6 @@ locals {
 
   network = {
     resource_group_name                 = "devinfranetRG"
-    resourcegroup_name                  = "devinfraRG"
     address_space                       = ["10.0.0.0/16"]
     cidr                                = ["10.0.1.0/24"]
     subnet_name                         = "main-subnet"
@@ -19,5 +18,14 @@ locals {
   application = {
     alias       = "dev"
     buildregion = "eastus"
+  }
+
+  database = {
+    administrator_login                      = "sqldb"
+    administrator_password                   = "$^XcpO9$Tp^^"
+    sql_server                               = "sqlserverdb"
+    sql_account                              = "sqlserveracnt"
+    sql_db                                   = "sqldbelite"
+    advanced_data_security_additional_emails = ["lbenagha@gmail.com"]
   }
 }
