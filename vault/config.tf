@@ -40,8 +40,8 @@ provider "datadog" {
 }
 
 ////vault
-variable login_username {}
-variable login_password {}
+variable "login_username" {}
+variable "login_password" {}
 
 provider "vault" {
 
