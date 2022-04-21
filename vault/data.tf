@@ -25,6 +25,6 @@ data "cloudinit_config" "userdata" {
   }
 }
 
-data "vault_generic_secret" "secret" {
-  path = "kv/secret"
-}
+# data "vault_generic_secret" "secret" {
+#   path = "kv/secret"
+# }
