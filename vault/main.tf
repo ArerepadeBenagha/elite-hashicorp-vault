@@ -205,12 +205,12 @@ resource "aws_s3_bucket" "logs_s3dev" {
     { Name = "vaultserver"
   bucket = "private" })
 }
-resource "aws_s3_bucket_public_access_block" "pbacess" {
-  bucket = aws_s3_bucket.logs_s3dev.id
+# resource "aws_s3_bucket_public_access_block" "pbacess" {
+#   bucket = aws_s3_bucket.logs_s3dev.id
 
-  block_public_acls   = true
-  block_public_policy = true
-}
+#   block_public_acls   = true
+#   block_public_policy = true
+# }
 
 
 #IAM
