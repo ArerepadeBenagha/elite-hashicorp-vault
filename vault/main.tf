@@ -197,6 +197,14 @@ resource "aws_lb_listener" "vault_listB" {
   }
 }
 ########------- S3 Bucket -----------####
+resource "aws_s3_bucket" "logs_s3dev" {
+  bucket = join("-", [local.application.app_name, "logdev"])
+  acl    = "private"
+
+  tags = merge(local.common_tags,
+    { Name = "vaultserver"
+  bucket = "private" })
+}
 resource "aws_s3_bucket_policy" "logs_s3dev" {
   bucket = aws_s3_bucket.logs_s3dev.id
 
