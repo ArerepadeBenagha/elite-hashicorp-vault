@@ -6,6 +6,6 @@ output username {
 value = "${data.vault_generic_secret.secret.data["username"]}"
 }
 
-output username {
+output password {
 value = "${data.vault_generic_secret.secret.data["password"]}"
 }
