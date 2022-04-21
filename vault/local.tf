@@ -17,6 +17,7 @@ locals {
     Company     = "EliteSolutions LLC"
     ManagedWith = "Terraform"
     Casecode    = "es20"
+    Environment = "dev"
   }
 
   application = {
