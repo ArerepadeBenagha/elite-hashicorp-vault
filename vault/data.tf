@@ -26,5 +26,6 @@ data "cloudinit_config" "userdata" {
 }
 
 data "vault_generic_secret" "secret" {
+  count = 1
   path = "kv/secret"
 }
