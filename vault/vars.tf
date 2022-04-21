@@ -21,3 +21,6 @@ variable "instance_type" {
 # variable "trigger_by" {
 #   default = "{host,env}"
 # }
+
+variable login_username {}
+variable login_password {}
