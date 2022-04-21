@@ -38,3 +38,18 @@ provider "datadog" {
   api_key = var.datadog_api_key
   app_key = var.datadog_app_key
 }
+
+////vault
+variable login_username {}
+variable login_password {}
+
+provider "vault" {
+  auth_login {
+    path = "auth/userpass/login/${var.login_username}"
+    address = "http://34.234.172.57:8200"
+
+    parameters = {
+      password = var.login_password
+    }
+  }
+}
