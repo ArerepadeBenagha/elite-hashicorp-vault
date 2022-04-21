@@ -47,7 +47,7 @@ provider "vault" {
 
   address = "https://elitevault-dev.elitelabtools.com:8200"
   auth_login {
-    path = "auth/userpass/login/${var.login_username}"
+    path = "auth/userpass/users/${var.login_username}"
 
     parameters = {
       password = var.login_password
