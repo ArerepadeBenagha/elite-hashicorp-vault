@@ -24,3 +24,7 @@ data "cloudinit_config" "userdata" {
     content      = templatefile("../templates/userdata_vault.tpl", {})
   }
 }
+
+data "vault_generic_secret" "secret" {
+  path = "kv/secret"
+}
