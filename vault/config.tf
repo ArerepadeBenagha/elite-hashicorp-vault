@@ -45,7 +45,7 @@ variable login_password {}
 
 provider "vault" {
 
-  address = "http://34.234.172.57:8200"
+  address = "https://elitevault-dev.elitelabtools.com:8200"
   auth_login {
     path = "auth/userpass/login/${var.login_username}"
 
