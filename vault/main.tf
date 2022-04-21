@@ -190,27 +190,38 @@ resource "aws_lb_listener" "vault_listB" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = "arn:aws:acm:us-east-1:375866976303:certificate/6e114ac9-0df7-4812-a049-795698447a35"
+  certificate_arn   = aws_acm_certificate.vaultcert.arn
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.vaultapp_tglb.arn
   }
 }
 ########------- S3 Bucket -----------####
-resource "aws_s3_bucket" "logs_s3dev" {
-  bucket = join("-", [local.application.app_name, "logdev"])
-  acl    = "private"
+resource "aws_s3_bucket_policy" "logs_s3dev" {
+  bucket = aws_s3_bucket.logs_s3dev.id
 
-  tags = merge(local.common_tags,
-    { Name = "vaultserver"
-  bucket = "private" })
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "MYBUCKETPOLICY"
+    Statement = [
+      {
+        Sid       = "Allow"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.logs_s3dev.arn,
+          "${aws_s3_bucket.logs_s3dev.arn}/*",
+        ]
+        Condition = {
+          NotIpAddress = {
+            "aws:SourceIp" = "8.8.8.8/32"
+          }
+        }
+      },
+    ]
+  })
 }
-# resource "aws_s3_bucket_public_access_block" "pbacess" {
-#   bucket = aws_s3_bucket.logs_s3dev.id
-
-#   block_public_acls   = true
-#   block_public_policy = true
-# }
 
 
 #IAM
