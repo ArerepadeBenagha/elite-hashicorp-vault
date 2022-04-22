@@ -43,14 +43,14 @@ provider "datadog" {
 variable "login_username" {}
 variable "login_password" {}
 
-provider "vault" {
+# provider "vault" {
 
-  address = "http://3.237.197.73:8200"
-  auth_login {
-    path = "auth/userpass/login/${var.login_username}"
+#   address = "http://3.237.197.73:8200"
+#   auth_login {
+#     path = "auth/userpass/login/${var.login_username}"
 
-    parameters = {
-      password = var.login_password
-    }
-  }
-}
+#     parameters = {
+#       password = var.login_password
+#     }
+#   }
+# }
